@@ -1,4 +1,5 @@
 import json
+import random
 from colorama import Fore, Back, Style, init
 init()
 
@@ -47,37 +48,88 @@ def print_map():
                 l += Back.BLUE + "|" + str(i) + "|"+ Style.RESET_ALL
         print(l)
 
+def retorna_valor_aleatorio_dicionario():
+    pass
 
+def retorna_maximo_dicionario(dicionario):
+    # print(dicionario)
+    maximo = None
+    for value in dicionario.values():
+        valor = list(value.values())
+        recompensa = valor[0]['r']
+        if not(maximo):
+            maximo = recompensa
+            print(maximo)
+        elif(recompensa>maximo):
+            maximo = recompensa
+    return maximo
+        # elif value.valu
+        # print(value)
 
 invalid = {}
-batata =True
+batata =False
+epsilon = 0.5
 if batata:
     print_map()
 else:
-    with open('mapa_inicial.recompensas_zeradas.json') as json_file:
-        q = json.load(json_file)
-        for key,value in q.items():
-            print(key)
-            for key1, value1 in value.items():
-                if(value1):
-                    for key2,value2 in value1.items():
-                        if(key2 in objetivo):
-                            value1.update({key2:objetivo[key2]})
-                            # value.update(value1)
-                            # q.update(value)
-                            # print(key2,value2)
-        print("pos")
-        for key,value in q.items():
+    # episodio = input("Digite quantos episodios deseja executar:")
+    episodio = 1
+    for i in range(0, episodio):
+        
+        # Le o mapa resetado
+        with open('mapa_inicial.recompensas_zeradas.json') as json_file:
+            q = json.load(json_file)
+
+            # 1
+            conjunto_q = dict(q.items())
+            estado, escolha_arbitraria = random.choice(list(q.items()))
+            # estado = escolha_arbitraria[0]
             
-            for key1, value1 in value.items():
-                if value1:
-                    for key2, value2 in value1.items():
-                        if key2 in objetivo:
-                            print(key)
-        # print(q["s"+str(49)])
-        # print_map()
-        # for key,value in q.items():
-        #     # print(key,value)
-        #     print(key)
-            # for key2, value2 in value.items():
-            #     print(key2, value2)
+            # print(escolha_arbitraria)
+            # 2
+            # for k in q.values()[estado]:
+            
+            # print(dict(escolha_arbitraria))
+
+            alfa = random.choice(list(escolha_arbitraria))
+            # print(alfa)
+            # print(escolha_arbitraria)
+            # print(escolha_arbitraria[alfa])
+            if escolha_arbitraria[alfa]:
+                sLinha = [*escolha_arbitraria[alfa]] # pega a chave do dicionario (sLinha)
+                for recompensa in escolha_arbitraria[alfa].values():
+                    
+                    r = recompensa['r']
+                    # print(r)
+                # print(sLinha[0])
+                if random.randint(0,100) < 70 :
+                    maximo = retorna_maximo_dicionario(conjunto_q[sLinha[0]])
+                else:
+                    retorna_valor_aleatorio_dicionario()
+                # soma = r + epsilon*
+            # for key,value in q.items():
+            #     print(key)
+                # for key1, value1 in value.items():
+                #     if(value1):
+                #         for key2,value2 in value1.items():
+                #             if(key2 in objetivo):
+                #                 value1.update({key2:objetivo[key2]})
+                                # value.update(value1)
+                                # q.update(value)
+                                # print(key2,value2)
+            # print("pos")
+            # for key,value in q.items():
+                
+            #     for key1, value1 in value.items():
+            #         if value1:
+            #             for key2, value2 in value1.items():
+            #                 if key2 in objetivo:
+            #                     print(key)
+            # print(q["s"+str(49)])
+            # print_map()
+            # for key,value in q.items():
+            #     # print(key,value)
+            #     print(key)
+                # for key2, value2 in value.items():
+                #     print(key2, value2)
+
