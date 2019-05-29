@@ -30,7 +30,21 @@ invalidas ={
 color_map = [i for i in range(1,51)]
 
 
-def print_map():
+
+'''
+    Legenda para o mapa:
+    
+    Casas verdes: estado inicial e objetivo
+    Casas azuis: Casa percorrida
+    Casas vermelhas: Casas inválidas definidas para o problema
+    Casas pretas: Casa não percorrida
+
+    Letra amarela: Quantidade de vezes que foi percorrida
+    
+    
+'''
+def print_map(caminho_percorrido):
+    #@TODO: REFATORAR
     j=0
     line = ""
     reverse = False
@@ -45,12 +59,36 @@ def print_map():
     for linha in pedacitos_correta:
         l = ""
         for i in linha:
-            if i == 1 or ("s"+str(i) in objetivo):
-                l += Back.GREEN + "|" +  str(i) +"|" + Style.RESET_ALL
-            elif ("s"+str(i) in invalidas):
-                l +=  Fore.WHITE + "|" + str(i) + "|"+ Style.RESET_ALL
+            if(i <10):
+                valor_corrigido = "0" + str(i)
             else:
-                l += Back.BLUE + "|" + str(i) + "|"+ Style.RESET_ALL
+                valor_corrigido = str(i) 
+            if("s"+str(i) in objetivo):
+                
+                l += Back.GREEN + "|" +  valor_corrigido +"|" + Style.RESET_ALL
+            elif ("s"+str(i) in invalidas):
+                if("s"+str(i) in caminho_percorrido):
+                    total_vezes_percorrido = caminho_percorrido.count("s"+str(i))
+                    if(total_vezes_percorrido<10):
+                        total_vezes_percorrido = "0" + str(total_vezes_percorrido)
+                    else:
+                        total_vezes_percorrido = str(total_vezes_percorrido)
+                    l +=  Back.MAGENTA + "|" + Fore.YELLOW + total_vezes_percorrido + Fore.WHITE + "|"+ Style.RESET_ALL    
+                else:
+                    l +=  Back.RED + "|" + valor_corrigido + "|"+ Style.RESET_ALL
+            elif("s"+str(i) in caminho_percorrido):
+                total_vezes_percorrido = caminho_percorrido.count("s"+str(i))
+                if(i==1):
+                    background_color = Back.GREEN
+                else:
+                    background_color = Back.BLUE
+                if(total_vezes_percorrido<10):
+                    total_vezes_percorrido = "0" + str(total_vezes_percorrido)
+                else:
+                    total_vezes_percorrido = str(total_vezes_percorrido)
+                l +=  background_color + "|" + Fore.YELLOW + total_vezes_percorrido + Fore.WHITE + "|"+ Style.RESET_ALL
+            else:
+                l +=  Fore.WHITE + "|" + valor_corrigido + "|"+ Style.RESET_ALL
         print(l)
 
 
@@ -109,121 +147,146 @@ def todos_menos_um(dicionario):
 
 invalid = {}
 batata =False
-epsilon = 0.5
+gama = 0.5
 if batata:
     print_map()
 else:
     # episodio = input("Digite quantos episodios deseja executar:")
-    episodio = 1
-    for i in range(0, episodio):
-        
+    episodio = 5000
+
+
+
+    # for i in range(0, episodio):
+    with open('mapa_inicial.recompensas_certas.json') as json_file:
         # Le o mapa resetado
-        with open('mapa_inicial.recompensas_zeradas.json') as json_file:
-            q = json.load(json_file)
+    
+        q = json.load(json_file)
 
 
-            #@TODO: Adicionar o FOR para executar até a convergência ou FIM
-
-            #Escolhe sempre a primeira posição para iniciar
-            # 1
-            conjunto_q = dict(q.items())
-            estado, escolha = list(q.items())[0]
-            # print(estado, escolha)
-
-            # print()
+        #@TODO: Adicionar o FOR para executar até a convergência ou FIM
+        #@TODO: DESCOBRIR QUAL A FUNÇÃO CONVERGÊNCIA
 
 
-            # @TODO: Transformar esta parte em uma função fábrica
+        #Escolhe sempre a primeira posição para iniciar
+        # 1
+        # print(q.items())
+        conjunto_q = dict(q.items())
+        # print(conjunto_q)
+        # print(q.get('s1'))
+        # break
 
+        #@TODO: Alterar este nome 'episodio' pois nao condiz com a semantica do problema
+        for i in range(0, episodio):
+            estado, escolha = 's1', q.get('s1')
+            teste = 1
+            caminho_percorrido = list()
+            sequencia_selecoes = list()
+            # print("estado i " + estado)
             
-            # 2.2.1 (Escolha do Alfa)
-            if random.randint(0,100) < 70 and not(todos_menos_um(escolha)):
-            # if not(todos_menos_um(escolha)):
-            # if not(todos_menos_um(escolha)):
-                acao_retornada = retorna_maximo_dicionario(escolha) #@TODO: SE N ENCONTRAR MAX, RETORNAR O MELHOR
-            else:
-                acao_retornada = retorna_valor_aleatorio_dicionario(escolha)
-            
-            recompensa_retornada = recompensa_para_acao(acao_retornada)
+            while(estado):
 
-            
-            estado_retornado = retorna_estado_para_acao(acao_retornada)
-            print(estado_retornado)
-            qmax = recompensa_para_acao(retorna_maximo_dicionario(conjunto_q[estado_retornado]))
-            soma = recompensa_retornada + epsilon * qmax
-            
+                # Vai atualizar o mapa com o objetivo
+                # if(estado in objetivo):
 
-            # FAZENDO O UPDATE
-            for key,value in q.items():
-                # print(key)
-                if(key==estado):
-                    print(conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'])
-                    print(conjunto_q[estado])
-                    conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'] = soma
+                # print(estado, escolha)
 
-                    print(conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'])
-                    print(conjunto_q[estado])
-                    print(key)
-                        
-            print(soma)
-            break
-            # AQUI ELE ESCOLHE O MELHOR FILHO 70% das vezes ou 30% aleatório
-            # se todos -1, escolhe aleatório
-            # estado, escolha_arbitraria = random.choice(list(q.items()))
-            
-            # print(estado)
-            # print(escolha_arbitraria)
-            # break
-            
-            # estado = escolha_arbitraria[0]
-            
-            # print(escolha_arbitraria)
-            # 2
-            # for k in q.values()[estado]:
+                # print()
 
-            # print(dict(escolha_arbitraria))
 
-            # escolhe para qual ALFA vai
-            alfa = random.choice(list(escolha_arbitraria))
-            # retorna_se_todos_menos_um(list
-            # Melhoria pedida pela prof
-            
-            # print(alfa)
-            # print(escolha_arbitraria)
+                # @TODO: Transformar esta parte em uma função fábrica
 
-            # para selecionar qual estado acessar
-            # print([*escolha_arbitraria[alfa]])
-            
-            # break
+                
+                # 2.2.1 (Escolha do Alfa)
+                caminho_percorrido.append(estado)
+                
+                # print(estado)
+                # print(escolha)
+                if random.randint(0,100) < 70 and not(todos_menos_um(escolha)):
+                # if not(todos_menos_um(escolha)):
+                # if not(todos_menos_um(escolha)):
+                    sequencia_selecoes.append("Seleciona max")
+                    acao_retornada = retorna_maximo_dicionario(escolha) #@TODO: SE N ENCONTRAR MAX, RETORNAR O MELHOR
+                else:
+                    sequencia_selecoes.append("Seleciona aleatório")
+                    # print(todos_menos_um(escolha))
+                    acao_retornada = retorna_valor_aleatorio_dicionario(escolha)
+                
+                recompensa_retornada = recompensa_para_acao(acao_retornada)
 
-            if escolha_arbitraria[alfa]:
-                sLinha = [*escolha_arbitraria[alfa]] # pega a chave do dicionario (sLinha)
-                # for recompensa in escolha_arbitraria[alfa].values():
+                
+                estado_retornado = retorna_estado_para_acao(acao_retornada)
+                if(estado_retornado=='s50'):
+                    soma = recompensa_retornada
+                    print(estado_retornado)
+                    print("Estado retronasnodasnodansod")
+                else:
+                # print("estado retornado " + estado_retornado)
+                    qmax = recompensa_para_acao(retorna_maximo_dicionario(conjunto_q[estado_retornado]))
+                    soma = recompensa_retornada + gama * qmax
+                if(soma>100):
+                    print("Estado anterior: ", estado)
+                    print("Estado: ", estado_retornado)
+                    print("Acoes: ", acao_retornada)
+                    print("Soma maluca: ", soma)
+                    print("Recompensa retornada: ", recompensa_retornada)
+                    print("Recompensa máxima: ", qmax)
+                    print("Gama: ", gama)
+                    input()
+                
+
+                # FAZENDO O UPDATE
+                for key,value in q.items():
+                    # print(key)
+                    if(key==estado):
+                        # print(conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'])
+                        # print(conjunto_q[estado])
+                        conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'] = soma
+                        break
+
+                        # print(conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'])
+                        # print(conjunto_q[estado])
+                        # print(key)
+                            
+                # print(soma)
+                # print(estado)
+                # print(escolha)
+
+                # print("Estado retornado ", estado_retornado)
+                # print("Escolha retornada ", conjunto_q[estado_retornado])
+                teste+=1
+                # break
+                # if(objetivo[estado_retornado]):
+                #     break # Encontrou o 50, entao, comeca novamente
+                # Encontrou o OBJETIVO
+                if(estado in objetivo):
+                    break
+                estado = estado_retornado
+                escolha = conjunto_q[estado]
+
+                
+            if(i%1==0):
+                print("Execucao ", i)
+                print("Execucao ate o caminho", teste)
+
+                # Para observar o comportamento
+                if(teste>100):
                     
-                #     r = recompensa['r']
-                    # print(r)
-                # print(sLinha[0])
+                    print(caminho_percorrido)
+                    input()
+                    # print(sequencia_selecoes)
+                    # input()
+                    # Pretty print do JSON!
+                    print(json.dumps(conjunto_q, indent=4, sort_keys=True))
+                    input()
+                print("Total percorrido: ", len(caminho_percorrido))
+                print_map(caminho_percorrido)
+                input()
                 
-                print(sLinha[0])
-                print(conjunto_q[sLinha[0]])
-                print('teste', retorna_valor_aleatorio_dicionario(conjunto_q[sLinha[0]]))
-                break
-                
-                # soma = r + epsilon*
-            
-            # print("pos")
-            # for key,value in q.items():
-                
-            #     for key1, value1 in value.items():
-            #         if value1:
-            #             for key2, value2 in value1.items():
-            #                 if key2 in objetivo:
-            #                     print(key)
-            # print(q["s"+str(49)])
-            # print_map()
-            # for key,value in q.items():
-            #     # print(key,value)
-            #     print(key)
-                # for key2, value2 in value.items():
-                #     print(key2, value2)
+            # print("Caminho: ", caminho_percorrido)
 
+            
+            # print(conjunto_q)
+            # input()
+                
+            
+        
