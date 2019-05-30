@@ -104,7 +104,6 @@ def retorna_maximo_dicionario(dicionario):
     
     maximo = acao_retorno = None
     for value in list(dicionario.items()):
-        
         if(value[1]):
             estado = value[1]
             acao = list(estado.values())[0]
@@ -146,13 +145,13 @@ def todos_menos_um(dicionario):
     return True
 
 invalid = {}
-batata =False
+DEBUG =False
 gama = 0.5
-if batata:
+if DEBUG:
     print_map()
 else:
     # episodio = input("Digite quantos episodios deseja executar:")
-    episodio = 5000
+    episodio = 10
 
 
 
@@ -169,11 +168,7 @@ else:
 
         #Escolhe sempre a primeira posição para iniciar
         # 1
-        # print(q.items())
         conjunto_q = dict(q.items())
-        # print(conjunto_q)
-        # print(q.get('s1'))
-        # break
 
         #@TODO: Alterar este nome 'episodio' pois nao condiz com a semantica do problema
         for i in range(0, episodio):
@@ -184,14 +179,6 @@ else:
             # print("estado i " + estado)
             
             while(estado):
-
-                # Vai atualizar o mapa com o objetivo
-                # if(estado in objetivo):
-
-                # print(estado, escolha)
-
-                # print()
-
 
                 # @TODO: Transformar esta parte em uma função fábrica
 
@@ -215,73 +202,66 @@ else:
 
                 
                 estado_retornado = retorna_estado_para_acao(acao_retornada)
-                if(estado_retornado=='s50'):
+                if(estado_retornado in objetivo):
                     soma = recompensa_retornada
-                    print(estado_retornado)
-                    print("Estado retronasnodasnodansod")
+                    # print(estado_retornado)
+                    # print("Estado retorno")
                 else:
                 # print("estado retornado " + estado_retornado)
                     qmax = recompensa_para_acao(retorna_maximo_dicionario(conjunto_q[estado_retornado]))
                     soma = recompensa_retornada + gama * qmax
-                if(soma>100):
-                    print("Estado anterior: ", estado)
-                    print("Estado: ", estado_retornado)
-                    print("Acoes: ", acao_retornada)
-                    print("Soma maluca: ", soma)
-                    print("Recompensa retornada: ", recompensa_retornada)
-                    print("Recompensa máxima: ", qmax)
-                    print("Gama: ", gama)
-                    input()
+                # if(soma>100):
+                #     print("Estado anterior: ", estado)
+                #     print("Estado: ", estado_retornado)
+                #     print("Acoes: ", acao_retornada)
+                #     print("Escolha: ", escolha)
+                #     print("Soma maluca: ", soma)
+                #     print("Recompensa retornada: ", recompensa_retornada)
+                #     print("Recompensa máxima: ", qmax)
+                #     print("Gama: ", gama)
+                #     input()
                 
-
+                
+                # print("Conjunto", estado, conjunto_q[estado])
+                # input()
+                # break
                 # FAZENDO O UPDATE
-                for key,value in q.items():
-                    # print(key)
-                    if(key==estado):
-                        # print(conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'])
-                        # print(conjunto_q[estado])
-                        conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'] = soma
-                        break
-
-                        # print(conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'])
-                        # print(conjunto_q[estado])
-                        # print(key)
-                            
-                # print(soma)
-                # print(estado)
-                # print(escolha)
-
-                # print("Estado retornado ", estado_retornado)
-                # print("Escolha retornada ", conjunto_q[estado_retornado])
+                
+                conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'] = soma
+                
+                # if(recompensa_retornada==100):
+                #     print(json.dumps(conjunto_q, indent=4, sort_keys=True))
+                #     input()
                 teste+=1
                 # break
                 # if(objetivo[estado_retornado]):
                 #     break # Encontrou o 50, entao, comeca novamente
                 # Encontrou o OBJETIVO
-                if(estado in objetivo):
+                if(estado_retornado in objetivo):
                     break
                 estado = estado_retornado
                 escolha = conjunto_q[estado]
 
                 
-            if(i%1==0):
-                print("Execucao ", i)
-                print("Execucao ate o caminho", teste)
+            if(DEBUG):
+                if(i%100==0):
+                    print("Execucao ", i)
+                    print("Execucao ate o caminho", teste)
 
-                # Para observar o comportamento
-                if(teste>100):
+                    # Para observar o comportamento
+                    if(teste>100):
+                        
+                        print(caminho_percorrido)
+                        input()
+                        print(sequencia_selecoes)
+                        input()
+                        # Pretty print do JSON!
+                        print(json.dumps(conjunto_q, indent=4, sort_keys=True))
+                        input()
+                    print("Total percorrido: ", len(caminho_percorrido))
+                    print_map(caminho_percorrido)
+                    input()
                     
-                    print(caminho_percorrido)
-                    input()
-                    # print(sequencia_selecoes)
-                    # input()
-                    # Pretty print do JSON!
-                    print(json.dumps(conjunto_q, indent=4, sort_keys=True))
-                    input()
-                print("Total percorrido: ", len(caminho_percorrido))
-                print_map(caminho_percorrido)
-                input()
-                
             # print("Caminho: ", caminho_percorrido)
 
             
