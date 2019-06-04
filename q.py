@@ -63,6 +63,7 @@ def print_map(caminho_percorrido):
                 valor_corrigido = "0" + str(i)
             else:
                 valor_corrigido = str(i) 
+
             if("s"+str(i) in objetivo):
                 
                 l += Back.GREEN + "|" +  valor_corrigido +"|" + Style.RESET_ALL
@@ -145,128 +146,125 @@ def todos_menos_um(dicionario):
     return True
 
 invalid = {}
-DEBUG =False
+DEBUG =True
 gama = 0.5
-if DEBUG:
-    print_map()
-else:
-    # episodio = input("Digite quantos episodios deseja executar:")
-    episodio = 10
+# if DEBUG:
+#     print_map()
+# else:
+# episodio = input("Digite quantos episodios deseja executar:")
+episodio = 10
 
 
 
-    # for i in range(0, episodio):
-    with open('mapa_inicial.recompensas_certas.json') as json_file:
-        # Le o mapa resetado
-    
-        q = json.load(json_file)
+# for i in range(0, episodio):
+with open('mapa_inicial.recompensas_certas.json') as json_file:
+    # Le o mapa resetado
+
+    q = json.load(json_file)
 
 
-        #@TODO: Adicionar o FOR para executar até a convergência ou FIM
-        #@TODO: DESCOBRIR QUAL A FUNÇÃO CONVERGÊNCIA
+    #@TODO: Adicionar o FOR para executar até a convergência ou FIM
+    #@TODO: DESCOBRIR QUAL A FUNÇÃO CONVERGÊNCIA
 
 
-        #Escolhe sempre a primeira posição para iniciar
-        # 1
-        conjunto_q = dict(q.items())
+    #Escolhe sempre a primeira posição para iniciar
+    # 1
+    conjunto_q = dict(q.items())
 
-        #@TODO: Alterar este nome 'episodio' pois nao condiz com a semantica do problema
-        for i in range(0, episodio):
-            estado, escolha = 's1', q.get('s1')
-            teste = 1
-            caminho_percorrido = list()
-            sequencia_selecoes = list()
-            # print("estado i " + estado)
-            
-            while(estado):
+    #@TODO: Alterar este nome 'episodio' pois nao condiz com a semantica do problema
+    for i in range(0, episodio):
+        estado, escolha = 's1', q.get('s1')
+        teste = 1
+        caminho_percorrido = list()
+        sequencia_selecoes = list()
+        # print("estado i " + estado)
+        
+        while(estado):
 
-                # @TODO: Transformar esta parte em uma função fábrica
-
-                
-                # 2.2.1 (Escolha do Alfa)
-                caminho_percorrido.append(estado)
-                
-                # print(estado)
-                # print(escolha)
-                if random.randint(0,100) < 70 and not(todos_menos_um(escolha)):
-                # if not(todos_menos_um(escolha)):
-                # if not(todos_menos_um(escolha)):
-                    sequencia_selecoes.append("Seleciona max")
-                    acao_retornada = retorna_maximo_dicionario(escolha) #@TODO: SE N ENCONTRAR MAX, RETORNAR O MELHOR
-                else:
-                    sequencia_selecoes.append("Seleciona aleatório")
-                    # print(todos_menos_um(escolha))
-                    acao_retornada = retorna_valor_aleatorio_dicionario(escolha)
-                
-                recompensa_retornada = recompensa_para_acao(acao_retornada)
-
-                
-                estado_retornado = retorna_estado_para_acao(acao_retornada)
-                if(estado_retornado in objetivo):
-                    soma = recompensa_retornada
-                    # print(estado_retornado)
-                    # print("Estado retorno")
-                else:
-                # print("estado retornado " + estado_retornado)
-                    qmax = recompensa_para_acao(retorna_maximo_dicionario(conjunto_q[estado_retornado]))
-                    soma = recompensa_retornada + gama * qmax
-                # if(soma>100):
-                #     print("Estado anterior: ", estado)
-                #     print("Estado: ", estado_retornado)
-                #     print("Acoes: ", acao_retornada)
-                #     print("Escolha: ", escolha)
-                #     print("Soma maluca: ", soma)
-                #     print("Recompensa retornada: ", recompensa_retornada)
-                #     print("Recompensa máxima: ", qmax)
-                #     print("Gama: ", gama)
-                #     input()
-                
-                
-                # print("Conjunto", estado, conjunto_q[estado])
-                # input()
-                # break
-                # FAZENDO O UPDATE
-                
-                conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'] = soma
-                
-                # if(recompensa_retornada==100):
-                #     print(json.dumps(conjunto_q, indent=4, sort_keys=True))
-                #     input()
-                teste+=1
-                # break
-                # if(objetivo[estado_retornado]):
-                #     break # Encontrou o 50, entao, comeca novamente
-                # Encontrou o OBJETIVO
-                if(estado_retornado in objetivo):
-                    break
-                estado = estado_retornado
-                escolha = conjunto_q[estado]
-
-                
-            if(DEBUG):
-                if(i%100==0):
-                    print("Execucao ", i)
-                    print("Execucao ate o caminho", teste)
-
-                    # Para observar o comportamento
-                    if(teste>100):
-                        
-                        print(caminho_percorrido)
-                        input()
-                        print(sequencia_selecoes)
-                        input()
-                        # Pretty print do JSON!
-                        print(json.dumps(conjunto_q, indent=4, sort_keys=True))
-                        input()
-                    print("Total percorrido: ", len(caminho_percorrido))
-                    print_map(caminho_percorrido)
-                    input()
-                    
-            # print("Caminho: ", caminho_percorrido)
+            # @TODO: Transformar esta parte em uma função fábrica
 
             
-            # print(conjunto_q)
+            
+            caminho_percorrido.append(estado)
+            
+            # 2.2.1 (Escolha do Alfa)
+            if random.randint(0,100) < 70 and not(todos_menos_um(escolha)):
+            # if not(todos_menos_um(escolha)):
+                sequencia_selecoes.append("Seleciona max")
+                acao_retornada = retorna_maximo_dicionario(escolha) #@TODO: SE N ENCONTRAR MAX, RETORNAR O MELHOR
+            else:
+                sequencia_selecoes.append("Seleciona aleatório")
+                acao_retornada = retorna_valor_aleatorio_dicionario(escolha)
+            
+            recompensa_retornada = recompensa_para_acao(acao_retornada)
+
+            
+            estado_retornado = retorna_estado_para_acao(acao_retornada)
+            if(estado_retornado in objetivo):
+                soma = recompensa_retornada
+                # print(estado_retornado)
+                # print("Estado retorno")
+            else:
+            # print("estado retornado " + estado_retornado)
+                qmax = recompensa_para_acao(retorna_maximo_dicionario(conjunto_q[estado_retornado]))
+                soma = recompensa_retornada + gama * qmax
+            if(soma>50):
+                print("Estado anterior: ", estado)
+                print("Estado: ", estado_retornado)
+                print("Acoes: ", acao_retornada)
+                print("Escolha: ", escolha)
+                print("Soma maluca: ", soma)
+                print("Recompensa retornada: ", recompensa_retornada)
+                print("Recompensa máxima: ", qmax)
+                print("Gama: ", gama)
+                input()
+            
+            
+            # print("Conjunto", estado, conjunto_q[estado])
             # input()
+            # break
+            # FAZENDO O UPDATE
+            
+            conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'] = soma
+            
+            # if(recompensa_retornada==100):
+            #     print(json.dumps(conjunto_q, indent=4, sort_keys=True))
+            #     input()
+            teste+=1
+            # break
+            # if(objetivo[estado_retornado]):
+            #     break # Encontrou o 50, entao, comeca novamente
+            # Encontrou o OBJETIVO
+            if(estado_retornado in objetivo):
+                break
+            estado = estado_retornado
+            escolha = conjunto_q[estado]
+
+            
+        if(DEBUG):
+            if(i%100==0):
+                print("Execucao ", i)
+                print("Execucao ate o caminho", teste)
+
+                # Para observar o comportamento
+                if(teste>100):
+                    
+                    print(caminho_percorrido)
+                    input()
+                    print(sequencia_selecoes)
+                    input()
+                    # Pretty print do JSON!
+                    print(json.dumps(conjunto_q, indent=4, sort_keys=True))
+                    input()
+                print("Total percorrido: ", len(caminho_percorrido))
+                print_map(caminho_percorrido)
+                input()
                 
+        # print("Caminho: ", caminho_percorrido)
+
+        
+        # print(conjunto_q)
+        # input()
             
         
+    
