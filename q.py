@@ -1,6 +1,7 @@
 import json
 import random
 from colorama import Fore, Back, Style, init
+from copy import copy, deepcopy
 init()
 
 
@@ -145,6 +146,62 @@ def todos_menos_um(dicionario):
 
     return True
 
+
+def exibe_matriz_q_formatada(q):
+    qLinha = list(q)
+    for estado in q:
+        acoes = list(q[estado])
+        stringAcoes = ''
+        for acao in acoes:
+            if(q[estado][acao]):
+                stringAcoes +=' ' + acao
+                for estadoAcao in q[estado][acao]:
+                    # if(str(q[estado][acao][estadoAcao]['r']).count()<4):
+
+                    stringAcoes += ': ' + estadoAcao + ' -> ' + str(q[estado][acao][estadoAcao]['r'])
+                    # print(q[estado][acao])
+            else:
+                stringAcoes +=' ' + acao + ': Parede     '
+        # input()
+        print('Q(' + estado + ') : ', stringAcoes)
+        # input()
+        # print(estado,q[estado])
+    input()
+
+
+'''
+    Função que compara cada ação do estado q com o estado qClone para verificar
+    se convergiu (não houveram mudanças) ou não
+'''
+def convergiu_simples(q, qClone):
+    ret = q is qClone
+    # print(ret)
+    # input()
+    # exibe_matriz_q_formatada(q)
+    # exibe_matriz_q_formatada(qClone)
+    # input()
+    for estado in q:
+        for acao in q[estado]:
+            if(q[estado][acao]):
+                for estado_recompensa in q[estado][acao]:
+                    if(q[estado][acao][estado_recompensa]['r'] != qClone[estado][acao][estado_recompensa]['r']):
+                        return False
+    return True
+                    
+
+def monta_lista_otima(q):
+    lista_otima = list()
+    maximo = None
+    for estado in q:
+        maximo = retorna_maximo_dicionario(q[estado])
+        lista_otima.append(maximo)
+    print(" LISTA OTIMA ")
+    print(lista_otima)
+    input()
+    return lista_otima
+            
+
+
 invalid = {}
 DEBUG =True
 gama = 0.5
@@ -152,119 +209,145 @@ gama = 0.5
 #     print_map()
 # else:
 # episodio = input("Digite quantos episodios deseja executar:")
-episodio = 10
-
-
+episodio = 1000
 
 # for i in range(0, episodio):
 with open('mapa_inicial.recompensas_certas.json') as json_file:
-    # Le o mapa resetado
+    with open('mapa_inicial.recompensas_zeradas.json') as json_file_q_table:
+        # Le o mapa resetado
 
-    q = json.load(json_file)
+        arquivo_recompensas_ambiente = json.load(json_file)
+        arquivo = json.load(json_file_q_table)
+        convergiu_n_vezes = 0
+
+        #@TODO: Adicionar o FOR para executar até a convergência ou FIM
+        #@TODO: DESCOBRIR QUAL A FUNÇÃO CONVERGÊNCIA
 
 
-    #@TODO: Adicionar o FOR para executar até a convergência ou FIM
-    #@TODO: DESCOBRIR QUAL A FUNÇÃO CONVERGÊNCIA
+        #Escolhe sempre a primeira posição para iniciar
+        # 1
+        conjunto_q = dict(arquivo.items())
+        conjunto_q_convergencia = None
+        recompensas_ambiente = dict(arquivo_recompensas_ambiente.items())
+        caminho_otimo = list()
+        # exibe_matriz_q_formatada(conjunto_q)
 
-
-    #Escolhe sempre a primeira posição para iniciar
-    # 1
-    conjunto_q = dict(q.items())
-
-    #@TODO: Alterar este nome 'episodio' pois nao condiz com a semantica do problema
-    for i in range(0, episodio):
-        estado, escolha = 's1', q.get('s1')
-        teste = 1
-        caminho_percorrido = list()
-        sequencia_selecoes = list()
-        # print("estado i " + estado)
-        
-        while(estado):
-
-            # @TODO: Transformar esta parte em uma função fábrica
-
+        #@TODO: Alterar este nome 'episodio' pois nao condiz com a semantica do problema
+        for i in range(0, episodio):
+            estado, escolha = 's1', arquivo.get('s1')
+            teste = 1
+            caminho_percorrido = list()
+            sequencia_selecoes = list()
+            # print("estado i " + estado)
             
-            
-            caminho_percorrido.append(estado)
-            
-            # 2.2.1 (Escolha do Alfa)
-            if random.randint(0,100) < 70 and not(todos_menos_um(escolha)):
-            # if not(todos_menos_um(escolha)):
-                sequencia_selecoes.append("Seleciona max")
-                acao_retornada = retorna_maximo_dicionario(escolha) #@TODO: SE N ENCONTRAR MAX, RETORNAR O MELHOR
-            else:
-                sequencia_selecoes.append("Seleciona aleatório")
-                acao_retornada = retorna_valor_aleatorio_dicionario(escolha)
-            
-            recompensa_retornada = recompensa_para_acao(acao_retornada)
+            while(estado):
 
-            
-            estado_retornado = retorna_estado_para_acao(acao_retornada)
-            if(estado_retornado in objetivo):
-                soma = recompensa_retornada
-                # print(estado_retornado)
-                # print("Estado retorno")
-            else:
-            # print("estado retornado " + estado_retornado)
-                qmax = recompensa_para_acao(retorna_maximo_dicionario(conjunto_q[estado_retornado]))
-                soma = recompensa_retornada + gama * qmax
-            if(soma>50):
-                print("Estado anterior: ", estado)
-                print("Estado: ", estado_retornado)
-                print("Acoes: ", acao_retornada)
-                print("Escolha: ", escolha)
-                print("Soma maluca: ", soma)
-                print("Recompensa retornada: ", recompensa_retornada)
-                print("Recompensa máxima: ", qmax)
-                print("Gama: ", gama)
-                input()
-            
-            
-            # print("Conjunto", estado, conjunto_q[estado])
-            # input()
-            # break
-            # FAZENDO O UPDATE
-            
-            conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'] = soma
-            
-            # if(recompensa_retornada==100):
-            #     print(json.dumps(conjunto_q, indent=4, sort_keys=True))
-            #     input()
-            teste+=1
-            # break
-            # if(objetivo[estado_retornado]):
-            #     break # Encontrou o 50, entao, comeca novamente
-            # Encontrou o OBJETIVO
-            if(estado_retornado in objetivo):
-                break
-            estado = estado_retornado
-            escolha = conjunto_q[estado]
+                # @TODO: Transformar esta parte em uma função fábrica
 
-            
-        if(DEBUG):
-            if(i%100==0):
-                print("Execucao ", i)
-                print("Execucao ate o caminho", teste)
+                
+                
+                caminho_percorrido.append(estado)
+                
+                # 2.2.1 (Escolha do Alfa)
+                if random.randint(0,100) < 70 and not(todos_menos_um(escolha)):
+                # if not(todos_menos_um(escolha)):
+                    sequencia_selecoes.append("Seleciona max")
+                    acao_retornada = retorna_maximo_dicionario(escolha) #@TODO: SE N ENCONTRAR MAX, RETORNAR O MELHOR
+                    recompensa_ambiente_limpar = (acao_retornada[0], recompensas_ambiente[estado][acao_retornada[0]])
+                else:
+                    sequencia_selecoes.append("Seleciona aleatório")
+                    acao_retornada = retorna_valor_aleatorio_dicionario(escolha)
+                    # print('Escolha', )
+                    recompensa_ambiente_limpar = (acao_retornada[0], recompensas_ambiente[estado][acao_retornada[0]])
+                    # print(acao_retornada)
+                    # input()
+                
+                recompensa_retornada = recompensa_para_acao(recompensa_ambiente_limpar)
+                
+                
+                estado_retornado = retorna_estado_para_acao(acao_retornada)
+                if(estado_retornado in objetivo):
+                    soma = 100
+                    # print(estado_retornado)
+                    # print("Estado retorno")
+                else:
+                # print("estado retornado " + estado_retornado)
+                    qmax = recompensa_para_acao(retorna_maximo_dicionario(conjunto_q[estado_retornado]))
+                    soma = recompensa_retornada + gama * qmax
+                #     print(gama, qmax)
+                #     print(str(gama * qmax))
+                # if(soma>25):
+                #     print("Estado anterior: ", estado)
+                #     print("Estado: ", estado_retornado)
+                #     print("Acoes: ", acao_retornada)
+                #     print("Escolha: ", escolha)
+                #     print("Soma [Q(s,a) = r(s,a)+gama*filhoDeMaiorRecompensa(Q(s', a'))]: ", soma)
+                #     print("Recompensa retornada: ", recompensa_retornada)
+                #     print("Recompensa máxima: ", qmax)
+                #     print("Gama: ", gama)
+                #     input()
+                
+                
+                # print("Conjunto", estado, conjunto_q[estado])
+                # input()
+                # break
+                # FAZENDO O UPDATE
+                
+                conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'] = soma
+                
+                # if(recompensa_retornada==100):
+                #     print(json.dumps(conjunto_q, indent=4, sort_keys=True))
+                #     input()
+                teste+=1
+                # break
+                # if(objetivo[estado_retornado]):
+                #     break # Encontrou o 50, entao, comeca novamente
+                # Encontrou o OBJETIVO
+                if(estado_retornado in objetivo):
+                    break
+                estado = estado_retornado
+                escolha = conjunto_q[estado]
 
-                # Para observar o comportamento
-                if(teste>100):
+                
+            if(DEBUG):
+                if(i%100==0):
+                    print("Execucao ", i)
+                    print("Execucao ate o caminho", teste)
+
+                    # Para observar o comportamento
+                    # if(teste>100):
                     
                     print(caminho_percorrido)
                     input()
-                    print(sequencia_selecoes)
-                    input()
+                    # print(sequencia_selecoes)
+                    # input()
                     # Pretty print do JSON!
-                    print(json.dumps(conjunto_q, indent=4, sort_keys=True))
+                    # print(json.dumps(conjunto_q, indent=4, sort_keys=True))
+                    exibe_matriz_q_formatada(conjunto_q)
                     input()
-                print("Total percorrido: ", len(caminho_percorrido))
-                print_map(caminho_percorrido)
-                input()
-                
-        # print("Caminho: ", caminho_percorrido)
+                    print("Total percorrido: ", len(caminho_percorrido))
+                    print_map(caminho_percorrido)
+                    input()
+            if(conjunto_q_convergencia == None):
+                conjunto_q_convergencia = deepcopy(conjunto_q)
+            elif(not(convergiu_simples(conjunto_q,conjunto_q_convergencia))):
+                conjunto_q_convergencia = deepcopy(conjunto_q)
+            else:
+                convergiu_n_vezes +=1
+                if(convergiu_n_vezes==100):
+                    print("CONVERGIU!")
+                    print("Execucao ", i)
+                    print("Execucao ate o caminho", teste)
+                    print_map(caminho_percorrido)
+                    exibe_matriz_q_formatada(conjunto_q)
+                    break
 
-        
-        # print(conjunto_q)
-        # input()
+            # print("Caminho: ", caminho_percorrido)
+            # @TODO: FINALIZAR A IMPLEMENTAÇÃO DA LISTA ÓTIMA
+            caminho_otimo = monta_lista_otima(conjunto_q)         
+            
+            # print(conjunto_q)
+            # input()
+                
             
         
-    
