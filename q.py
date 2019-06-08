@@ -4,34 +4,6 @@ from colorama import Fore, Back, Style, init
 from copy import copy, deepcopy
 init()
 
-
-
-objetivo = {
-    "s50":100
-}
-invalidas ={
-"s7":-100,
-"s14":-100,
-"s10":-100,
-"s11":-100,
-"s20":-100,
-"s19":-100,
-"s24":-100,
-"s21":-100,
-"s30":-100,
-"s27":-100,
-"s31":-100,
-"s40":-100,
-"s39":-100,
-"s37":-100,
-"s41":-100
-}
-
-
-color_map = [i for i in range(1,51)]
-
-
-
 '''
     Legenda para o mapa:
     
@@ -59,7 +31,7 @@ def print_map(caminho_percorrido, recompensas = None):
             else:
                 valor_corrigido = str(valor) 
             return valor_corrigido
-    #@TODO: REFATORAR
+    
     j=0
     line = ""
     reverse = False
@@ -67,7 +39,7 @@ def print_map(caminho_percorrido, recompensas = None):
     #                                      10 ... 6
     
     pedacitos, pedacitos_correta = monta_mapa_cores()
-    # exibe
+    
     for linha in pedacitos_correta:
         l = ""
         for i in linha:
@@ -119,7 +91,10 @@ def retorna_valor_aleatorio_dicionario(dicionario):
         acao_retorno = random.choice(list(dicionario.items()))
     return acao_retorno
 
-
+'''
+    Função simples que retorna a ação de maior valor de recompensa
+    dentro de um dicionário
+'''
 def retorna_maximo_dicionario(dicionario):
     
     maximo = acao_retorno = None
@@ -134,6 +109,10 @@ def retorna_maximo_dicionario(dicionario):
                 acao_retorno, maximo = value,recompensa
     return  acao_retorno
 
+'''
+    Função que retorna um valor máximo que não
+    esteja na lista passada como segundo parâmetro
+'''
 def retorna_maximo_dicionario_nao_esta_na_lista(dicionario,lista_estados_nao_pode_ser):
     
     maximo = acao_retorno = None
@@ -159,6 +138,10 @@ def retorna_estado_para_acao(acao):
     estado_acao = [*list(acao)[1]][0]
     return estado_acao
 
+'''
+    Função que verifica se todos os valores na lista
+    são -1
+'''
 def todos_menos_um(dicionario):
 
     for value in list(dicionario.items()):
@@ -182,6 +165,9 @@ def todos_menos_um(dicionario):
     return True
 
 
+'''
+    Função que exibe no terminal uma versão formatada do conjunto Q
+'''
 def exibe_matriz_q_formatada(q):
     qLinha = list(q)
     for estado in q:
@@ -191,16 +177,12 @@ def exibe_matriz_q_formatada(q):
             if(q[estado][acao]):
                 stringAcoes +=' ' + acao
                 for estadoAcao in q[estado][acao]:
-                    # if(str(q[estado][acao][estadoAcao]['r']).count()<4):
-
                     stringAcoes += ': ' + estadoAcao + ' -> ' + f'{q[estado][acao][estadoAcao]["r"]:9.4f}'
-                    # print(q[estado][acao])
             else:
                 stringAcoes +=' ' + acao + ': Parede          '
-        # input()
+        
         print('Q(' + estado + ') : ', stringAcoes)
-        # input()
-        # print(estado,q[estado])
+        
     input()
 
 
@@ -209,7 +191,7 @@ def exibe_matriz_q_formatada(q):
     se convergiu (não houveram mudanças) ou não
 '''
 def convergiu_simples(q, qClone):
-    ret = q is qClone
+    
     for estado in q:
         for acao in q[estado]:
             if(q[estado][acao]):
@@ -218,9 +200,12 @@ def convergiu_simples(q, qClone):
                         return False
     return True
 
-# @TODO: ...
+'''
+    Função que compara cada recompensa para um estado dentro de uma lista ótima com
+    uma lista ótima anterior para verificar se convergiu (não houveram mudanças) ou não
+'''
 def convergiu_lista_otima(lista_otima, lista_otima_anterior):
-    # ret = q is qClone
+    
     if(len(list(lista_otima))==len(list(lista_otima_anterior))):
         for estado in lista_otima:
             
@@ -231,7 +216,7 @@ def convergiu_lista_otima(lista_otima, lista_otima_anterior):
         return False     
 
 def monta_lista_otima(q):
-    # print("Monta lista ótima")
+    
     lista_otima = list()
     caminho_percorrido = list()
     maximo = None
@@ -239,7 +224,7 @@ def monta_lista_otima(q):
     estado = 's1'
     caminho_percorrido.append(estado)
     while(estado!='s50'):
-        # print(estado)
+        
         maximo = retorna_maximo_dicionario_nao_esta_na_lista(q[estado],caminho_percorrido)
         if(maximo==None):
             return None
@@ -254,9 +239,6 @@ def monta_lista_otima(q):
         lista_otima.append([acao,estado_acao, recompensa_estado_acao])
         caminho_percorrido.append(estado_acao)
         estado = estado_acao
-    # print(" LISTA OTIMA ")
-    # exibe_lista_linha_por_linha(lista_otima)
-    # input()
     return lista_otima
 
 def extrai_estado_lista_otima(lista_otima):
@@ -281,14 +263,53 @@ def exibe_lista_linha_por_linha(lista):
     for linha in lista:
         print(linha)
 
-invalid = {}
+# ------------------------------------------------------------ #
+
+# Dicionário de qual o objetivo a ser alcançado e qual sua recompensa
+
+objetivo = {
+    "s50":100
+}
+
+# Dicionário de posições inválidas do mapa
+
+invalidas ={
+"s7":-100,
+"s14":-100,
+"s10":-100,
+"s11":-100,
+"s20":-100,
+"s19":-100,
+"s24":-100,
+"s21":-100,
+"s30":-100,
+"s27":-100,
+"s31":-100,
+"s40":-100,
+"s39":-100,
+"s37":-100,
+"s41":-100
+}
+
+# List comprehension para o mapa de cores, montando o array com os valores de 1 à 50
+color_map = [i for i in range(1,51)]
+
+# Valor para exibir informações de debugging
 DEBUG =False
+
+# Gama para o cálculo de propagação de recompensas
 gama = 0.5
+
+# Variável que define quantas vezes uma lista ficou sem mudar para ser convergência
 quando_converge = 5
+
+# Variável que define partindo de quantas execuções a lista de caminho ótimo passará a ser buscada
 quando_comeca_a_armazenar_lista_caminho_otimo = 5
+
 # if DEBUG:
 #     print_map()
 # else:
+
 # episodio = input("Digite quantos episodios deseja executar:")
 episodio = 1000
 
@@ -423,8 +444,3 @@ with open('mapa_inicial.recompensas_certas.json') as json_recompensas_ambiente:
                         print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
                         input()
                         break    
-            
-                        
-                
-            
-        
