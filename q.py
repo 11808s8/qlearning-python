@@ -284,20 +284,27 @@ def exibe_lista_linha_por_linha(lista):
 invalid = {}
 DEBUG =False
 gama = 0.5
+quando_converge = 5
+quando_comeca_a_armazenar_lista_caminho_otimo = 5
 # if DEBUG:
 #     print_map()
 # else:
 # episodio = input("Digite quantos episodios deseja executar:")
 episodio = 1000
 
+# Tipos aceitaveis de convergencia:
+# lista_otima
+# conjunto_q
+tipo_de_convergencia = 'conjunto_q'
+
 
 # 1
-with open('mapa_inicial.recompensas_certas.json') as json_file:
-    with open('mapa_inicial.recompensas_zeradas.json') as json_file_q_table:
+with open('mapa_inicial.recompensas_certas.json') as json_recompensas_ambiente:
+    with open('mapa_inicial.recompensas_zeradas.json') as json_mapa_zerado:
         # Le o mapa resetado
 
-        arquivo_recompensas_ambiente = json.load(json_file)
-        arquivo = json.load(json_file_q_table)
+        arquivo_recompensas_ambiente = json.load(json_recompensas_ambiente)
+        arquivo = json.load(json_mapa_zerado)
         convergiu_n_vezes = 0
 
         #@TODO: Adicionar o FOR para executar até a convergência ou FIM
@@ -305,14 +312,18 @@ with open('mapa_inicial.recompensas_certas.json') as json_file:
 
         caminho_otimo_convergencia = None
         convergiu_caminho = 0
+
+        # Conjunto Q
         conjunto_q = dict(arquivo.items())
+
+        # Conjunto Q para caso a convergência seja verificada por ele
         conjunto_q_convergencia = None
     
         for passo in range(0, episodio):
-
+            
             # 2.1 - Inicializações 
 
-            # Conjunto Q
+            # Recompensas do Ambiente
             recompensas_ambiente = dict(arquivo_recompensas_ambiente.items())
 
             # Cainho Ótimo
@@ -327,9 +338,6 @@ with open('mapa_inicial.recompensas_certas.json') as json_file:
             while(estado):
 
                 # @TODO: Transformar esta parte em uma função fábrica
-
-                
-                
                 caminho_percorrido.append(estado)
                 
                 # 2.2.1 (Escolha do Alfa)
@@ -366,73 +374,57 @@ with open('mapa_inicial.recompensas_certas.json') as json_file:
                 escolha = conjunto_q[estado]
 
                 
-            if(DEBUG):
+            if(DEBUG==True):
                 if(passo%100==0):
                     print("Execucao ", passo)
                     
                     print(caminho_percorrido)
                     input()
-                    # print(sequencia_selecoes)
-                    # input()
-                    # Pretty print do JSON!
-                    # print(json.dumps(conjunto_q, indent=4, sort_keys=True))
                     exibe_matriz_q_formatada(conjunto_q)
                     input()
                     print("Total percorrido: ", len(caminho_percorrido))
                     print_map(caminho_percorrido)
                     input()
 
-            # @TODO: Modificar a convergência para lidar com a lista ótima!
-            if(conjunto_q_convergencia == None):
-                conjunto_q_convergencia = deepcopy(conjunto_q)
-            elif(not(convergiu_simples(conjunto_q,conjunto_q_convergencia))):
-                conjunto_q_convergencia = deepcopy(conjunto_q)
-            else:
-                convergiu_n_vezes +=1
-                # if(convergiu_n_vezes==100):
-                #     print("CONVERGIU!")
-                #     print("Execucao ", passo)
-                #     input()
-                #     print_map(caminho_percorrido)
-                #     exibe_matriz_q_formatada(conjunto_q)
-                    # break
+            if(tipo_de_convergencia=='conjunto_q'):
 
-            # print("Caminho: ", caminho_percorrido)
-            # @TODO: FINALIZAR A IMPLEMENTAÇÃO DA LISTA ÓTIMA
-            print(passo)
-            if(passo>5):
+                if(conjunto_q_convergencia == None):
+                    conjunto_q_convergencia = deepcopy(conjunto_q)
+                elif(not(convergiu_simples(conjunto_q,conjunto_q_convergencia))):
+                    conjunto_q_convergencia = deepcopy(conjunto_q)
+                else:
+                    convergiu_n_vezes +=1
                 
-                # exibe_matriz_q_formatada(conjunto_q)
+                if(convergiu_n_vezes == quando_converge):
+                    print("Convergiu conjunto q!")
+                    print_map(conjunto_q_convergencia)
+                    input()
+                    break    
+
+            elif(tipo_de_convergencia=='lista_otima'):
+                if(passo>5):
+                
                 caminho_otimo = monta_lista_otima(conjunto_q)         
-                
-                if(caminho_otimo != None): # Retorna NONE quando não consegue encontrar o caminho pelos valores máximos sem repetir passos
+                # Retorna NONE quando não consegue encontrar o caminho pelos valores máximos sem repetir passos
+                if(caminho_otimo != None): 
                     lista_recompensa_caminho_otimo = extrai_estado_recompensa_lista_otima(caminho_otimo) 
-                    # print(lista_recompensa_caminho_otimo)
-                    # input()           
+                    
                     lista_estados_caminho_otimo = extrai_estado_lista_otima(caminho_otimo)
-                    # print(caminho_otimo_convergencia)
+                    
                     if(caminho_otimo_convergencia==None):
                         caminho_otimo_convergencia = deepcopy(lista_recompensa_caminho_otimo)
-                        # print("p1")
-                        # print(caminho_otimo_convergencia)
-                        # print(lista_estados_caminho_otimo)
                     elif(not(convergiu_lista_otima(lista_recompensa_caminho_otimo, caminho_otimo_convergencia))):
                         caminho_otimo_convergencia = deepcopy(lista_recompensa_caminho_otimo)
-                        print("p2")
                     else:
-                        print("p3")
                         convergiu_caminho += 1
-                    input()
-                    if(convergiu_caminho == 5):
+                    
+                    if(convergiu_caminho == quando_converge):
                         print("Convergiu caminho otimo!")
+                        print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
+                        input()
                         break    
+            
                         
-                    print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
-                    print("p")
-            # if(passo%25==0):
-            #     input()
-            # print(conjunto_q)
-            # input()
                 
             
         
