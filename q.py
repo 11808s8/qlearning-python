@@ -209,7 +209,10 @@ def convergiu_lista_otima(lista_otima, lista_otima_anterior):
     if(len(list(lista_otima))==len(list(lista_otima_anterior))):
         for estado in lista_otima:
             
-            if(lista_otima[estado]!=lista_otima_anterior[estado]):
+            if(estado in lista_otima and estado in lista_otima_anterior):
+                if(lista_otima[estado]!=lista_otima_anterior[estado]):
+                    return False
+            else:
                 return False
         return True
     else:
@@ -316,131 +319,136 @@ episodio = 1000
 # Tipos aceitaveis de convergencia:
 # lista_otima
 # conjunto_q
-tipo_de_convergencia = 'conjunto_q'
+tipo_de_convergencia = 'lista_otima'
 
+#Variáveis para testes
+tipos_de_gama = [ 0.5 , 0.4, 0.3, 0.7, 0.6]
 
 # 1
-with open('mapa_inicial.recompensas_certas.json') as json_recompensas_ambiente:
-    with open('mapa_inicial.recompensas_zeradas.json') as json_mapa_zerado:
+
+for teste in range(0,len(tipos_de_gama)):
+    with open('mapa_inicial.recompensas_certas.json') as json_recompensas_ambiente:
+        with open('mapa_inicial.recompensas_zeradas.json') as json_mapa_zerado:
         # Le o mapa resetado
+        
+            arquivo_recompensas_ambiente = json.load(json_recompensas_ambiente)
+            arquivo = json.load(json_mapa_zerado)
+            convergiu_n_vezes = 0
 
-        arquivo_recompensas_ambiente = json.load(json_recompensas_ambiente)
-        arquivo = json.load(json_mapa_zerado)
-        convergiu_n_vezes = 0
+            #@TODO: Adicionar o FOR para executar até a convergência ou FIM
+            #@TODO: DESCOBRIR QUAL A FUNÇÃO CONVERGÊNCIA
 
-        #@TODO: Adicionar o FOR para executar até a convergência ou FIM
-        #@TODO: DESCOBRIR QUAL A FUNÇÃO CONVERGÊNCIA
+            caminho_otimo_convergencia = None
+            convergiu_caminho = 0
 
-        caminho_otimo_convergencia = None
-        convergiu_caminho = 0
+            # Conjunto Q
+            conjunto_q = dict(arquivo.items())
 
-        # Conjunto Q
-        conjunto_q = dict(arquivo.items())
-
-        # Conjunto Q para caso a convergência seja verificada por ele
-        conjunto_q_convergencia = None
-    
-        for passo in range(0, episodio):
-            
-            # 2.1 - Inicializações 
-
-            # Recompensas do Ambiente
-            recompensas_ambiente = dict(arquivo_recompensas_ambiente.items())
-
-            # Cainho Ótimo
-            caminho_otimo = list()
-            
-            #Escolhe sempre a primeira posição para iniciar
-            estado, escolha = 's1', arquivo.get('s1')
-            caminho_percorrido = list()
-            sequencia_selecoes = list()
-            
-            # 2.2 - Repetição para cada passo do episódio até o ESTADO ser terminal
-            while(estado):
-
-                # @TODO: Transformar esta parte em uma função fábrica
-                caminho_percorrido.append(estado)
+            # Conjunto Q para caso a convergência seja verificada por ele
+            conjunto_q_convergencia = None
+        
+            for passo in range(0, episodio):
                 
-                # 2.2.1 (Escolha do Alfa)
-                if random.randint(0,100) < 70 and not(todos_menos_um(escolha)):
-                    sequencia_selecoes.append("Seleciona max")
-                    acao_retornada = retorna_maximo_dicionario(escolha) #@TODO: SE N ENCONTRAR MAX, RETORNAR O MELHOR
-                    recompensa_ambiente_limpar = (acao_retornada[0], recompensas_ambiente[estado][acao_retornada[0]])
-                else:
-                    sequencia_selecoes.append("Seleciona aleatório")
-                    acao_retornada = retorna_valor_aleatorio_dicionario(escolha)
-                    recompensa_ambiente_limpar = (acao_retornada[0], recompensas_ambiente[estado][acao_retornada[0]])
-                
+                # 2.1 - Inicializações 
 
-                # 2.2.3
-                recompensa_ambiente = recompensa_para_acao(recompensa_ambiente_limpar)
-                estado_retornado = retorna_estado_para_acao(acao_retornada)
+                # Recompensas do Ambiente
+                recompensas_ambiente = dict(arquivo_recompensas_ambiente.items())
 
-                # 2.2.4
-                if(estado_retornado in objetivo):
-                    soma = objetivo[estado_retornado]
-                else:
-                    qmax = recompensa_para_acao(retorna_maximo_dicionario(conjunto_q[estado_retornado]))
-                    soma = recompensa_ambiente + gama * qmax
+                # Cainho Ótimo
+                caminho_otimo = list()
+                
+                #Escolhe sempre a primeira posição para iniciar
+                estado, escolha = 's1', arquivo.get('s1')
+                caminho_percorrido = list()
+                sequencia_selecoes = list()
+                
+                # 2.2 - Repetição para cada passo do episódio até o ESTADO ser terminal
+                while(estado):
 
-                # 2.2.5
-                conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'] = soma
-                
-                
-                # Encontrou o 50, entao, comeca novamente
-                # Encontrou o OBJETIVO
-                if(estado_retornado in objetivo):
-                    break
-                estado = estado_retornado
-                escolha = conjunto_q[estado]
-
-                
-            if(DEBUG==True):
-                if(passo%100==0):
-                    print("Execucao ", passo)
+                    # @TODO: Transformar esta parte em uma função fábrica
+                    caminho_percorrido.append(estado)
                     
-                    print(caminho_percorrido)
-                    input()
-                    exibe_matriz_q_formatada(conjunto_q)
-                    input()
-                    print("Total percorrido: ", len(caminho_percorrido))
-                    print_map(caminho_percorrido)
-                    input()
-
-            if(tipo_de_convergencia=='conjunto_q'):
-
-                if(conjunto_q_convergencia == None):
-                    conjunto_q_convergencia = deepcopy(conjunto_q)
-                elif(not(convergiu_simples(conjunto_q,conjunto_q_convergencia))):
-                    conjunto_q_convergencia = deepcopy(conjunto_q)
-                else:
-                    convergiu_n_vezes +=1
-                
-                if(convergiu_n_vezes == quando_converge):
-                    print("Convergiu conjunto q!")
-                    print_map(conjunto_q_convergencia)
-                    input()
-                    break    
-
-            elif(tipo_de_convergencia=='lista_otima'):
-                if(passo>5):
-                
-                caminho_otimo = monta_lista_otima(conjunto_q)         
-                # Retorna NONE quando não consegue encontrar o caminho pelos valores máximos sem repetir passos
-                if(caminho_otimo != None): 
-                    lista_recompensa_caminho_otimo = extrai_estado_recompensa_lista_otima(caminho_otimo) 
-                    
-                    lista_estados_caminho_otimo = extrai_estado_lista_otima(caminho_otimo)
-                    
-                    if(caminho_otimo_convergencia==None):
-                        caminho_otimo_convergencia = deepcopy(lista_recompensa_caminho_otimo)
-                    elif(not(convergiu_lista_otima(lista_recompensa_caminho_otimo, caminho_otimo_convergencia))):
-                        caminho_otimo_convergencia = deepcopy(lista_recompensa_caminho_otimo)
+                    # 2.2.1 (Escolha do Alfa)
+                    if random.randint(0,100) < 70 and not(todos_menos_um(escolha)):
+                        sequencia_selecoes.append("Seleciona max")
+                        acao_retornada = retorna_maximo_dicionario(escolha) #@TODO: SE N ENCONTRAR MAX, RETORNAR O MELHOR
+                        recompensa_ambiente_limpar = (acao_retornada[0], recompensas_ambiente[estado][acao_retornada[0]])
                     else:
-                        convergiu_caminho += 1
+                        sequencia_selecoes.append("Seleciona aleatório")
+                        acao_retornada = retorna_valor_aleatorio_dicionario(escolha)
+                        recompensa_ambiente_limpar = (acao_retornada[0], recompensas_ambiente[estado][acao_retornada[0]])
                     
-                    if(convergiu_caminho == quando_converge):
-                        print("Convergiu caminho otimo!")
-                        print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
+
+                    # 2.2.3
+                    recompensa_ambiente = recompensa_para_acao(recompensa_ambiente_limpar)
+                    estado_retornado = retorna_estado_para_acao(acao_retornada)
+
+                    # 2.2.4
+                    if(estado_retornado in objetivo):
+                        soma = objetivo[estado_retornado]
+                    else:
+                        qmax = recompensa_para_acao(retorna_maximo_dicionario(conjunto_q[estado_retornado]))
+                        soma = recompensa_ambiente + tipos_de_gama[teste] * qmax
+
+                    # 2.2.5
+                    conjunto_q[estado][acao_retornada[0]][estado_retornado]['r'] = soma
+                    
+                    
+                    # Encontrou o 50, entao, comeca novamente
+                    # Encontrou o OBJETIVO
+                    if(estado_retornado in objetivo):
+                        break
+                    estado = estado_retornado
+                    escolha = conjunto_q[estado]
+
+                    
+                if(DEBUG==True):
+                    if(passo%100==0):
+                        print("Execucao ", passo)
+                        
+                        print(caminho_percorrido)
+                        input()
+                        exibe_matriz_q_formatada(conjunto_q)
+                        input()
+                        print("Total percorrido: ", len(caminho_percorrido))
+                        print_map(caminho_percorrido)
+                        input()
+
+                if(tipo_de_convergencia=='conjunto_q'):
+
+                    if(conjunto_q_convergencia == None):
+                        conjunto_q_convergencia = deepcopy(conjunto_q)
+                    elif(not(convergiu_simples(conjunto_q,conjunto_q_convergencia))):
+                        conjunto_q_convergencia = deepcopy(conjunto_q)
+                    else:
+                        convergiu_n_vezes +=1
+                    
+                    if(convergiu_n_vezes == quando_converge):
+                        print("Convergiu conjunto q!")
+                        # print_map(conjunto_q_convergencia)
                         input()
                         break    
+
+                elif(tipo_de_convergencia=='lista_otima'):
+                    if(passo>5):
+                    
+                        caminho_otimo = monta_lista_otima(conjunto_q)         
+                        # Retorna NONE quando não consegue encontrar o caminho pelos valores máximos sem repetir passos
+                        if(caminho_otimo != None): 
+                            lista_recompensa_caminho_otimo = extrai_estado_recompensa_lista_otima(caminho_otimo) 
+                            
+                            lista_estados_caminho_otimo = extrai_estado_lista_otima(caminho_otimo)
+                            
+                            if(caminho_otimo_convergencia==None):
+                                caminho_otimo_convergencia = deepcopy(lista_recompensa_caminho_otimo)
+                            elif(not(convergiu_lista_otima(lista_recompensa_caminho_otimo, caminho_otimo_convergencia))):
+                                caminho_otimo_convergencia = deepcopy(lista_recompensa_caminho_otimo)
+                            else:
+                                convergiu_caminho += 1
+                            
+                            if(convergiu_caminho == quando_converge):
+                                print("Convergiu caminho otimo!")
+                                print(f'Tipo de gama {tipos_de_gama[teste]}')
+                                print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
+                                input()
+                                break    
