@@ -327,6 +327,7 @@ tipo_de_convergencia = 'lista_otima'
 
 #Variáveis para testes
 tipos_de_gama = [0.1,0.2,0.8,0.9,0.95, 0.5 , 0.4, 0.3, 0.7, 0.6]
+porcentagem_escolha_maiores = 85
 total_rodadas_cada_gama = list()
 # 1
 
@@ -373,7 +374,7 @@ for teste in range(0,len(tipos_de_gama)):
                     caminho_percorrido.append(estado)
                     
                     # 2.2.1 (Escolha do Alfa)
-                    if random.randint(0,100) < 70 and not(todos_menos_um(escolha)):
+                    if random.randint(0,100) < porcentagem_escolha_maiores and not(todos_menos_um(escolha)):
                         sequencia_selecoes.append("Seleciona max")
                         acao_retornada = retorna_maximo_dicionario(escolha) #@TODO: SE N ENCONTRAR MAX, RETORNAR O MELHOR
                         recompensa_ambiente_limpar = (acao_retornada[0], recompensas_ambiente[estado][acao_retornada[0]])
@@ -454,6 +455,7 @@ for teste in range(0,len(tipos_de_gama)):
                                 print("Convergiu caminho otimo!")
                                 print(f'Tipo de gama {tipos_de_gama[teste]}')
                                 print(rodou_n_vezes)
+                                print(passo)
                                 total_rodadas_cada_gama.append(rodou_n_vezes)
                                 print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
                                 input()
@@ -472,5 +474,5 @@ plt.xlabel('Gamas', fontsize=5)
 plt.ylabel('Quantidades de Rodadas', fontsize=5)
 plt.xticks(indices, listas_ordenadas_tipo, fontsize=5, rotation=30)
 plt.title('Quantidades de Rodada a cada Gama')
-nome_arquivo_grafico = f'grafico_de_barra_{time.strftime("%Y%m%d%H%M%S")}.png'
+nome_arquivo_grafico = f'grafico_de_barra_porcentagem_escolha_maiores_{porcentagem_escolha_maiores}_{time.strftime("%Y%m%d%H%M%S")}.png'
 plt.savefig(nome_arquivo_grafico, bbox_inches='tight')
