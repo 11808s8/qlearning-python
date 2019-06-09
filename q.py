@@ -2,6 +2,9 @@ import json
 import random
 from colorama import Fore, Back, Style, init
 from copy import copy, deepcopy
+import matplotlib.pyplot as plt
+import numpy as np
+
 init()
 
 '''
@@ -323,7 +326,7 @@ tipo_de_convergencia = 'lista_otima'
 
 #Variáveis para testes
 tipos_de_gama = [ 0.5 , 0.4, 0.3, 0.7, 0.6]
-
+total_rodadas_cada_gama = list()
 # 1
 
 for teste in range(0,len(tipos_de_gama)):
@@ -346,7 +349,7 @@ for teste in range(0,len(tipos_de_gama)):
 
             # Conjunto Q para caso a convergência seja verificada por ele
             conjunto_q_convergencia = None
-        
+            rodou_n_vezes = 0
             for passo in range(0, episodio):
                 
                 # 2.1 - Inicializações 
@@ -364,7 +367,7 @@ for teste in range(0,len(tipos_de_gama)):
                 
                 # 2.2 - Repetição para cada passo do episódio até o ESTADO ser terminal
                 while(estado):
-
+                    rodou_n_vezes += 1
                     # @TODO: Transformar esta parte em uma função fábrica
                     caminho_percorrido.append(estado)
                     
@@ -449,6 +452,17 @@ for teste in range(0,len(tipos_de_gama)):
                             if(convergiu_caminho == quando_converge):
                                 print("Convergiu caminho otimo!")
                                 print(f'Tipo de gama {tipos_de_gama[teste]}')
+                                total_rodadas_cada_gama.append(rodou_n_vezes)
                                 print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
                                 input()
                                 break    
+
+# def plot_bar_x():
+    # this is for plotting purpose
+index = np.arange(len(tipos_de_gama))
+plt.bar(index, total_rodadas_cada_gama)
+plt.xlabel('Gamas', fontsize=5)
+plt.ylabel('Quantidades de Rodadas', fontsize=5)
+plt.xticks(index, tipos_de_gama, fontsize=5, rotation=30)
+plt.title('Quantidades de Rodada a cada Gama')
+plt.savefig('grafico_de_barra.png', bbox_inches='tight')
