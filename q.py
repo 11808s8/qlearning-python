@@ -452,6 +452,7 @@ for teste in range(0,len(tipos_de_gama)):
                             if(convergiu_caminho == quando_converge):
                                 print("Convergiu caminho otimo!")
                                 print(f'Tipo de gama {tipos_de_gama[teste]}')
+                                print(rodou_n_vezes)
                                 total_rodadas_cada_gama.append(rodou_n_vezes)
                                 print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
                                 input()
@@ -459,10 +460,16 @@ for teste in range(0,len(tipos_de_gama)):
 
 # def plot_bar_x():
     # this is for plotting purpose
-index = np.arange(len(tipos_de_gama))
-plt.bar(index, total_rodadas_cada_gama)
+
+
+listas_ordenadas = sorted(zip(tipos_de_gama, total_rodadas_cada_gama))
+# listas_ordenadas.sort()
+listas_ordenadas_tipo = [chave for chave,_ in listas_ordenadas] 
+listas_ordenadas_total_rodadas = [valor for _,valor in listas_ordenadas] 
+indices = [i for i in range(0,len(listas_ordenadas_tipo))]
+plt.bar(indice, listas_ordenadas_total_rodadas)
 plt.xlabel('Gamas', fontsize=5)
 plt.ylabel('Quantidades de Rodadas', fontsize=5)
-plt.xticks(index, tipos_de_gama, fontsize=5, rotation=30)
+plt.xticks(indices, listas_ordenadas_tipo, fontsize=5, rotation=30)
 plt.title('Quantidades de Rodada a cada Gama')
 plt.savefig('grafico_de_barra.png', bbox_inches='tight')
