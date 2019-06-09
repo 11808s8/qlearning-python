@@ -459,15 +459,14 @@ for teste in range(0,len(tipos_de_gama)):
                                 input()
                                 break    
 
-# def plot_bar_x():
-    # this is for plotting purpose
-
 
 listas_ordenadas = sorted(zip(tipos_de_gama, total_rodadas_cada_gama))
-# listas_ordenadas.sort()
+
 listas_ordenadas_tipo = [chave for chave,_ in listas_ordenadas] 
 listas_ordenadas_total_rodadas = [valor for _,valor in listas_ordenadas] 
 indices = [i for i in range(0,len(listas_ordenadas_tipo))]
+
+# Plot do Gráfico!
 plt.bar(indices, listas_ordenadas_total_rodadas)
 plt.xlabel('Gamas', fontsize=5)
 plt.ylabel('Quantidades de Rodadas', fontsize=5)
