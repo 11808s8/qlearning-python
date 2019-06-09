@@ -3,6 +3,7 @@ import random
 from colorama import Fore, Back, Style, init
 from copy import copy, deepcopy
 import matplotlib.pyplot as plt
+import time
 import numpy as np
 
 init()
@@ -325,7 +326,7 @@ episodio = 1000
 tipo_de_convergencia = 'lista_otima'
 
 #Variáveis para testes
-tipos_de_gama = [ 0.5 , 0.4, 0.3, 0.7, 0.6]
+tipos_de_gama = [0.1,0.2,0.8,0.9,0.95, 0.5 , 0.4, 0.3, 0.7, 0.6]
 total_rodadas_cada_gama = list()
 # 1
 
@@ -467,9 +468,10 @@ listas_ordenadas = sorted(zip(tipos_de_gama, total_rodadas_cada_gama))
 listas_ordenadas_tipo = [chave for chave,_ in listas_ordenadas] 
 listas_ordenadas_total_rodadas = [valor for _,valor in listas_ordenadas] 
 indices = [i for i in range(0,len(listas_ordenadas_tipo))]
-plt.bar(indice, listas_ordenadas_total_rodadas)
+plt.bar(indices, listas_ordenadas_total_rodadas)
 plt.xlabel('Gamas', fontsize=5)
 plt.ylabel('Quantidades de Rodadas', fontsize=5)
 plt.xticks(indices, listas_ordenadas_tipo, fontsize=5, rotation=30)
 plt.title('Quantidades de Rodada a cada Gama')
-plt.savefig('grafico_de_barra.png', bbox_inches='tight')
+nome_arquivo_grafico = f'grafico_de_barra_{time.strftime("%Y%m%d%H%M%S")}.png'
+plt.savefig(nome_arquivo_grafico, bbox_inches='tight')
