@@ -182,8 +182,8 @@ def todos_menos_um(dicionario):
     Função que exibe no terminal uma versão formatada do conjunto Q
 '''
 def exibe_matriz_q_formatada(q):
-    qLinha = list(q)
-    for estado in q:
+    qLinha = sorted(q) # Ordena qualquer iterável ! :-)
+    for estado in qLinha:
         acoes = list(q[estado])
         stringAcoes = ''
         for acao in acoes:
@@ -197,7 +197,6 @@ def exibe_matriz_q_formatada(q):
         
         print('Q(' + estado + ') : ', stringAcoes)
         
-    # input()
 
 
 '''
@@ -332,7 +331,7 @@ DEBUG =False
 # -------------------------------
 #Variáveis para testes
 tipos_de_gama = [0.1,0.2,0.8,0.9,0.95, 0.5 , 0.4, 0.3, 0.7, 0.6]
-porcentagem_escolha_maiores = 95
+porcentagem_escolha_maiores = 70
 total_rodadas_cada_gama = list()
 
 # Define se o programa executará até o fim dos N episódios definidos, sem parar quando converge
@@ -356,6 +355,10 @@ quando_converge = 5
 
 # Variável que define partindo de quantas execuções a lista de caminho ótimo passará a ser buscada
 quando_comeca_a_armazenar_lista_caminho_otimo = 5
+
+# Variável que define se a matriz Q será exibida de N em N episódios da execução
+# Com o valor -1, não exibirá a matriz Q
+exibir_matriz_q_de_n_em_n_passos = -1
 
 # -------------------------------
 
@@ -433,6 +436,9 @@ for teste in range(0,len(tipos_de_gama)):
                     estado = estado_retornado
                     escolha = conjunto_q[estado]
 
+                if(exibir_matriz_q_de_n_em_n_passos!=-1 and passo>1 and passo%exibir_matriz_q_de_n_em_n_passos==0):
+                    print("Episodio numero: ", passo)
+                    exibe_matriz_q_formatada(conjunto_q)
                     
                 if(DEBUG==True):
                     if(passo%100==0):
@@ -457,8 +463,9 @@ for teste in range(0,len(tipos_de_gama)):
                     
                     if(convergiu_n_vezes == quando_converge):
                         print("Convergiu conjunto q!")
-
                         print('Tipo de gama {}'.format(tipos_de_gama[teste]))
+                        exibe_matriz_q_formatada(conjunto_q)
+                        input()
                         if(salvar_por_episodio):
                             total_rodadas_cada_gama.append(passo)    
                         else:
@@ -489,6 +496,7 @@ for teste in range(0,len(tipos_de_gama)):
                                 print("Convergiu caminho otimo!")
                                 print('Tipo de gama {}'.format(tipos_de_gama[teste]))
                                 exibe_matriz_q_formatada(conjunto_q)
+                                input()
                                 if(salvar_por_episodio):
                                     total_rodadas_cada_gama.append(passo)    
                                 else:
@@ -521,5 +529,5 @@ plt.xlabel('Gamas', fontsize=10)
 plt.ylabel('Quantidades de Rodadas', fontsize=10)
 plt.xticks(indices, listas_ordenadas_tipo, fontsize=5, rotation=30)
 plt.title('Quantidades de Rodada a cada Gama')
-nome_arquivo_grafico = 'grafico_de_barra_convergencia_por_{}_escolha_maiores_{}_{}.png'.format(tipo_de_convergencia,porcentagem_escolha_maiores,time.strftime("%Y%m%d%H%M%S"))
+nome_arquivo_grafico = 'graficos/grafico_de_barra_convergencia_por_{}_escolha_maiores_{}_{}.png'.format(tipo_de_convergencia,porcentagem_escolha_maiores,time.strftime("%Y%m%d%H%M%S"))
 plt.savefig(nome_arquivo_grafico, bbox_inches='tight')
