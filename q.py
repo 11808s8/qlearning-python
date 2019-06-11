@@ -181,7 +181,8 @@ def exibe_matriz_q_formatada(q):
             if(q[estado][acao]):
                 stringAcoes +=' ' + acao
                 for estadoAcao in q[estado][acao]:
-                    stringAcoes += ': ' + estadoAcao + ' -> ' + f'{q[estado][acao][estadoAcao]["r"]:9.4f}'
+                    stringAcoes += ': ' + estadoAcao + ' -> ' + '{}'
+                    stringAcoes.format("q[estado][acao][estadoAcao]["r"]:9.4f")
             else:
                 stringAcoes +=' ' + acao + ': Parede          '
         
@@ -318,7 +319,7 @@ quando_comeca_a_armazenar_lista_caminho_otimo = 5
 # else:
 
 # episodio = input("Digite quantos episodios deseja executar:")
-episodio = 1000
+episodios = 1000
 
 # Tipos aceitaveis de convergencia:
 # lista_otima
@@ -328,8 +329,10 @@ tipo_de_convergencia = 'lista_otima'
 
 #Variáveis para testes
 tipos_de_gama = [0.1,0.2,0.8,0.9,0.95, 0.5 , 0.4, 0.3, 0.7, 0.6]
-porcentagem_escolha_maiores = 85
+porcentagem_escolha_maiores = 95
 total_rodadas_cada_gama = list()
+roda_ate_o_fim = False
+salvar_por_episodio = False
 # 1
 
 for teste in range(0,len(tipos_de_gama)):
@@ -353,7 +356,7 @@ for teste in range(0,len(tipos_de_gama)):
             # Conjunto Q para caso a convergência seja verificada por ele
             conjunto_q_convergencia = None
             rodou_n_vezes = 0
-            for passo in range(0, episodio):
+            for passo in range(0, episodios):
                 
                 # 2.1 - Inicializações 
 
@@ -431,10 +434,16 @@ for teste in range(0,len(tipos_de_gama)):
                     
                     if(convergiu_n_vezes == quando_converge):
                         print("Convergiu conjunto q!")
-                        total_rodadas_cada_gama.append(rodou_n_vezes)
+
+                        print('Tipo de gama {}'.format(tipos_de_gama[teste]))
+                        if(salvar_por_episodio):
+                            total_rodadas_cada_gama.append(passo)    
+                        else:
+                            total_rodadas_cada_gama.append(rodou_n_vezes)
                         # print_map(conjunto_q_convergencia)
                         # input()
-                        break    
+                        if(not(roda_ate_o_fim)):
+                            break    
 
                 elif(tipo_de_convergencia=='lista_otima'):
                     if(passo>5):
@@ -455,13 +464,17 @@ for teste in range(0,len(tipos_de_gama)):
                             
                             if(convergiu_caminho == quando_converge):
                                 print("Convergiu caminho otimo!")
-                                print(f'Tipo de gama {tipos_de_gama[teste]}')
-                                print(rodou_n_vezes)
-                                print(passo)
-                                total_rodadas_cada_gama.append(rodou_n_vezes)
-                                print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
-                                input()
-                                break    
+                                print('Tipo de gama {}'.format(tipos_de_gama[teste]))
+                                if(salvar_por_episodio):
+                                    total_rodadas_cada_gama.append(passo)    
+                                else:
+                                    total_rodadas_cada_gama.append(rodou_n_vezes)
+                                # print(rodou_n_vezes)
+                                # print(passo)
+                                # print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
+                                # input()
+                                if(not(roda_ate_o_fim)):
+                                    break
 
 
 listas_ordenadas = sorted(zip(tipos_de_gama, total_rodadas_cada_gama))
@@ -476,5 +489,5 @@ plt.xlabel('Gamas', fontsize=5)
 plt.ylabel('Quantidades de Rodadas', fontsize=5)
 plt.xticks(indices, listas_ordenadas_tipo, fontsize=5, rotation=30)
 plt.title('Quantidades de Rodada a cada Gama')
-nome_arquivo_grafico = f'grafico_de_barra_convergencia_por_{tipo_de_convergencia}_escolha_maiores_{porcentagem_escolha_maiores}_{time.strftime("%Y%m%d%H%M%S")}.png'
+nome_arquivo_grafico = 'grafico_de_barra_convergencia_por_{}_escolha_maiores_{}_{}.png'.format(tipo_de_convergencia,porcentagem_escolha_maiores,time.strftime("%Y%m%d%H%M%S"))
 plt.savefig(nome_arquivo_grafico, bbox_inches='tight')
