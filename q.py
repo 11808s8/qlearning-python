@@ -328,6 +328,26 @@ color_map = [i for i in range(1,51)]
 # Valor para exibir informações de debugging
 DEBUG =False
 
+
+# -------------------------------
+#Variáveis para testes
+tipos_de_gama = [0.1,0.2,0.8,0.9,0.95, 0.5 , 0.4, 0.3, 0.7, 0.6]
+porcentagem_escolha_maiores = 95
+total_rodadas_cada_gama = list()
+
+# Define se o programa executará até o fim dos N episódios definidos, sem parar quando converge
+roda_ate_o_fim = False
+
+# Define o gráfico será gerado com base na quantidade de passos do episódio executados ou 
+# na quantidade de execuções mesmo internas de quando está buscando o OBJETIVO
+salvar_por_episodio = False
+episodios = 1000
+# Tipos aceitaveis de convergencia:
+# lista_otima
+# conjunto_q
+# tipo_de_convergencia = 'conjunto_q'
+tipo_de_convergencia = 'lista_otima'
+
 # Gama para o cálculo de propagação de recompensas
 gama = 0.5
 
@@ -337,27 +357,10 @@ quando_converge = 5
 # Variável que define partindo de quantas execuções a lista de caminho ótimo passará a ser buscada
 quando_comeca_a_armazenar_lista_caminho_otimo = 5
 
-# if DEBUG:
-#     print_map()
-# else:
+# -------------------------------
 
-# episodio = input("Digite quantos episodios deseja executar:")
-episodios = 1000
 
-# Tipos aceitaveis de convergencia:
-# lista_otima
-# conjunto_q
-# tipo_de_convergencia = 'conjunto_q'
-tipo_de_convergencia = 'lista_otima'
-
-#Variáveis para testes
-tipos_de_gama = [0.1,0.2,0.8,0.9,0.95, 0.5 , 0.4, 0.3, 0.7, 0.6]
-porcentagem_escolha_maiores = 95
-total_rodadas_cada_gama = list()
-roda_ate_o_fim = False
-salvar_por_episodio = False
 # 1
-
 for teste in range(0,len(tipos_de_gama)):
     with open('mapa_inicial.recompensas_certas.json') as json_recompensas_ambiente:
         with open('mapa_inicial.recompensas_zeradas.json') as json_mapa_zerado:
