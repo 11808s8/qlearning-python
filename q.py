@@ -323,6 +323,7 @@ episodio = 1000
 # Tipos aceitaveis de convergencia:
 # lista_otima
 # conjunto_q
+# tipo_de_convergencia = 'conjunto_q'
 tipo_de_convergencia = 'lista_otima'
 
 #Variáveis para testes
@@ -430,8 +431,9 @@ for teste in range(0,len(tipos_de_gama)):
                     
                     if(convergiu_n_vezes == quando_converge):
                         print("Convergiu conjunto q!")
+                        total_rodadas_cada_gama.append(rodou_n_vezes)
                         # print_map(conjunto_q_convergencia)
-                        input()
+                        # input()
                         break    
 
                 elif(tipo_de_convergencia=='lista_otima'):
@@ -474,5 +476,5 @@ plt.xlabel('Gamas', fontsize=5)
 plt.ylabel('Quantidades de Rodadas', fontsize=5)
 plt.xticks(indices, listas_ordenadas_tipo, fontsize=5, rotation=30)
 plt.title('Quantidades de Rodada a cada Gama')
-nome_arquivo_grafico = f'grafico_de_barra_porcentagem_escolha_maiores_{porcentagem_escolha_maiores}_{time.strftime("%Y%m%d%H%M%S")}.png'
+nome_arquivo_grafico = f'grafico_de_barra_convergencia_por_{tipo_de_convergencia}_escolha_maiores_{porcentagem_escolha_maiores}_{time.strftime("%Y%m%d%H%M%S")}.png'
 plt.savefig(nome_arquivo_grafico, bbox_inches='tight')
