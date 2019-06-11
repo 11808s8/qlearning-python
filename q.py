@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import time
 import numpy as np
 
+# Comando necessário para a biblioteca colorama
 init()
 
 '''
@@ -28,7 +29,7 @@ def monta_mapa_cores():
 
     return pedacitos, pedacitos_correta
 
-def print_map(caminho_percorrido, recompensas = None):
+def print_map(caminho_percorrido, valores_acao = None):
     def corrige_valor(valor):
             if(i <10):
                 valor_corrigido = "0" + str(valor)
@@ -44,6 +45,7 @@ def print_map(caminho_percorrido, recompensas = None):
     
     pedacitos, pedacitos_correta = monta_mapa_cores()
     
+    # itera sobre a lista
     for linha in pedacitos_correta:
         l = ""
         for i in linha:
@@ -51,19 +53,25 @@ def print_map(caminho_percorrido, recompensas = None):
             valor_corrigido = corrige_valor(i)
             valor_print = valor_corrigido
 
-            if(recompensas==None):
+            # Se não há uma lista com os valores, simplesmente
+            # monta o mapa com o total de vezes que o algoritmo 
+            # passou por uma casa
+            if(valores_acao==None):
                 total_vezes_percorrido = caminho_percorrido.count("s"+str(i))
                 if(total_vezes_percorrido<10):
                     total_vezes_percorrido = "0" + str(total_vezes_percorrido)
                 else:
                     total_vezes_percorrido = str(total_vezes_percorrido)
                 valor_print = total_vezes_percorrido
+            
+            # Caso contrário, exibe o valor da ação do estado anterior para o próximo
             else:
                 if("s"+str(i) in caminho_percorrido):
-                    valor_print = str(round(recompensas['s'+str(i)],9))
+                    valor_print = str(round(valores_acao['s'+str(i)],9))
                 else:
                     valor_print = "s"+str(i)
 
+            # Se é um valor do objetivo, recebe a cor verde
             if("s"+str(i) in objetivo):
                 
                 l += Back.GREEN + "|" +  valor_corrigido +"|" + Style.RESET_ALL
@@ -87,8 +95,9 @@ def print_map(caminho_percorrido, recompensas = None):
                 l +=  Fore.WHITE + "|" + valor_corrigido + "|"+ Style.RESET_ALL
         print(l)
 
-
-# Método que SEMPRE retorna um caminho possível (desconsidera os com NONE)
+'''
+    Função que SEMPRE retorna uma ação possível ALEATÓRIA (desconsidera os com NONE)
+'''
 def retorna_valor_aleatorio_dicionario(dicionario):
     acao_retorno = random.choice(list(dicionario.items()))
     while(acao_retorno[1] == None):
@@ -223,6 +232,10 @@ def convergiu_lista_otima(lista_otima, lista_otima_anterior):
     else:
         return False     
 
+'''
+    Função que monta a lista ótima de valores com base sempre em pegar o maior valor do conjunto q,
+    retornando uma lista com os valores da lista ótima
+'''
 def monta_lista_otima(q):
     
     lista_otima = list()
@@ -249,12 +262,19 @@ def monta_lista_otima(q):
         estado = estado_acao
     return lista_otima
 
+'''
+    Função que extrai os estados de uma lista ótima, iterando sobre ela e retornando uma nova lista com estes estados
+'''
 def extrai_estado_lista_otima(lista_otima):
     nova_lista = list()
     for linha in lista_otima:
         nova_lista.append(linha[1])
     return nova_lista
 
+'''
+    Função que extrai as recompensas de uma lista ótima, iterando sobre ela e retornando uma nova lista com as recompensas das mesmas
+    (Recompensas == valor de uma ação de um estado A para estado B)
+'''
 def extrai_estado_recompensa_lista_otima(lista_otima):
     nova_lista = list()
     lista_estado = list()
@@ -267,6 +287,9 @@ def extrai_estado_recompensa_lista_otima(lista_otima):
     nova_lista = dict(zip(lista_estado,lista_recompensa))
     return nova_lista
 
+'''
+    Função simples que exibe os valores de uma lista linha a linha
+'''
 def exibe_lista_linha_por_linha(lista):
     for linha in lista:
         print(linha)
@@ -343,9 +366,6 @@ for teste in range(0,len(tipos_de_gama)):
             arquivo_recompensas_ambiente = json.load(json_recompensas_ambiente)
             arquivo = json.load(json_mapa_zerado)
             convergiu_n_vezes = 0
-
-            #@TODO: Adicionar o FOR para executar até a convergência ou FIM
-            #@TODO: DESCOBRIR QUAL A FUNÇÃO CONVERGÊNCIA
 
             caminho_otimo_convergencia = None
             convergiu_caminho = 0
@@ -476,17 +496,24 @@ for teste in range(0,len(tipos_de_gama)):
                                 if(not(roda_ate_o_fim)):
                                     break
 
-
+# Unifica as listas formando tuplas com os tipos de gama e a quantidade total de rodadas para cada gama
+# e ordena a lista gerada
 listas_ordenadas = sorted(zip(tipos_de_gama, total_rodadas_cada_gama))
 
+# Monta com list comprehension uma lista com o tipo, na mesma ordem da lista acima
+
+# Pega o primeiro valor da tupla
 listas_ordenadas_tipo = [chave for chave,_ in listas_ordenadas] 
+# Pega o segundo valor da tupla
 listas_ordenadas_total_rodadas = [valor for _,valor in listas_ordenadas] 
+
+# Monta a lista de índices para o gráfico
 indices = [i for i in range(0,len(listas_ordenadas_tipo))]
 
 # Plot do Gráfico!
 plt.bar(indices, listas_ordenadas_total_rodadas)
-plt.xlabel('Gamas', fontsize=5)
-plt.ylabel('Quantidades de Rodadas', fontsize=5)
+plt.xlabel('Gamas', fontsize=10)
+plt.ylabel('Quantidades de Rodadas', fontsize=10)
 plt.xticks(indices, listas_ordenadas_tipo, fontsize=5, rotation=30)
 plt.title('Quantidades de Rodada a cada Gama')
 nome_arquivo_grafico = 'grafico_de_barra_convergencia_por_{}_escolha_maiores_{}_{}.png'.format(tipo_de_convergencia,porcentagem_escolha_maiores,time.strftime("%Y%m%d%H%M%S"))
