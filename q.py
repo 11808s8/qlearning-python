@@ -190,14 +190,14 @@ def exibe_matriz_q_formatada(q):
             if(q[estado][acao]):
                 stringAcoes +=' ' + acao
                 for estadoAcao in q[estado][acao]:
-                    stringAcoes += ': ' + estadoAcao + ' -> ' + '{}'
-                    stringAcoes.format("q[estado][acao][estadoAcao]["r"]:9.4f")
+                    stringAcoes += ': ' + estadoAcao + ' -> ' + '{:9.2f}'.format(q[estado][acao][estadoAcao]['r'])
+                    
             else:
                 stringAcoes +=' ' + acao + ': Parede          '
         
         print('Q(' + estado + ') : ', stringAcoes)
         
-    input()
+    # input()
 
 
 '''
@@ -488,6 +488,7 @@ for teste in range(0,len(tipos_de_gama)):
                             if(convergiu_caminho == quando_converge):
                                 print("Convergiu caminho otimo!")
                                 print('Tipo de gama {}'.format(tipos_de_gama[teste]))
+                                exibe_matriz_q_formatada(conjunto_q)
                                 if(salvar_por_episodio):
                                     total_rodadas_cada_gama.append(passo)    
                                 else:
@@ -498,6 +499,7 @@ for teste in range(0,len(tipos_de_gama)):
                                 # input()
                                 if(not(roda_ate_o_fim)):
                                     break
+                
 
 # Unifica as listas formando tuplas com os tipos de gama e a quantidade total de rodadas para cada gama
 # e ordena a lista gerada
