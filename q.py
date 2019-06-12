@@ -342,7 +342,7 @@ roda_ate_o_fim = False
 # Define o gráfico será gerado com base na quantidade de passos do episódio executados ou 
 # na quantidade de execuções mesmo internas de quando está buscando o OBJETIVO
 salvar_por_episodio = True
-episodios = 1000
+episodios = 5000
 # Tipos aceitaveis de convergencia:
 # lista_otima
 # conjunto_q
@@ -467,6 +467,7 @@ for teste in range(0,len(tipos_de_gama)):
                         print("Convergiu conjunto q!")
                         print('Tipo de gama {}'.format(tipos_de_gama[teste]))
                         exibe_matriz_q_formatada(conjunto_q)
+                        print("\nRodou ", passo,"vezes")
                         input()
                         if(salvar_por_episodio):
                             total_rodadas_cada_gama.append(passo)    
@@ -498,6 +499,10 @@ for teste in range(0,len(tipos_de_gama)):
                                 print("Convergiu caminho otimo!")
                                 print('Tipo de gama {}'.format(tipos_de_gama[teste]))
                                 exibe_matriz_q_formatada(conjunto_q)
+
+                                print("\nMapa do caminho ótimo")
+                                print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
+                                print("Executou ", passo,"episódios")
                                 input()
                                 if(salvar_por_episodio):
                                     total_rodadas_cada_gama.append(passo)    
@@ -505,7 +510,7 @@ for teste in range(0,len(tipos_de_gama)):
                                     total_rodadas_cada_gama.append(rodou_n_vezes)
                                 # print(rodou_n_vezes)
                                 # print(passo)
-                                # print_map(lista_estados_caminho_otimo,lista_recompensa_caminho_otimo)
+                                
                                 # input()
                                 if(not(roda_ate_o_fim)):
                                     break
